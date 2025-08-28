@@ -1,0 +1,175 @@
+\documentclass{article}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage[hidelinks,breaklinks=true]{hyperref}
+\usepackage{geometry}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+\geometry{margin=1in}
+
+% Define tightlist for pandoc compatibility
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\begin{document}
+
+\section{PATh Supplement - Status and Progress of Hetergeneous Model
+Training}\label{path-supplement---status-and-progress-of-hetergeneous-model-training}
+
+\subsection{Objectives}\label{objectives}
+
+
+As a supplement to the Partnership to Advanced Throughput Computing
+(PATh) project, we have launched a new collaboration with a group of
+domain scientists and ML researchers to run a pathfinder project
+profiling the effects of throughput training and inference on
+distributed, heterogeneous capacity. The goals of this activity, are
+threefold:
+
+\begin{enumerate}
+\tightlist
+\item{Characterize the impact of training ensembles across heterogeneous
+resources, as opposed to the traditional approach of ``single
+homogeneous cluster''.}
+\item{Use the workloads developed in (1) to improve capabilities and
+services, reducing the barrier of entry for new ML researchers to use
+the PATh services to train ensembles with capacity powered by the NAIRR
+pilot.}
+\item{Demonstrate running single workloads managed by a single Access Point
+(AP) effectively across as many of the NAIRR pilot resources as
+possible.}
+\end{enumerate}
+
+To accomplish these goals, we will use the existing Gitter lab's
+published Mutational Effect Transfer Learning (METL) protein language
+model, using existing data and software to train a modest number of
+model variants (20-30) from a single AP, intentionally moving the
+training processes between available resources. Comparison of these
+variants will prove compatibility of the models, ensuring that the
+heterogeneity of resources did not impact the scientific power of the
+models.
+
+\subsection{Methodology}\label{methodology}
+
+\subsubsection{NAIRR allocations}\label{nairr-allocations}
+
+Through the NAIRR pilot program, we applied (NAIRR240335) for and
+received allocations at 6 sites:
+
+\begin{longtable}[]{@{}ll@{}}
+\toprule\noalign{}
+Site & Approved allocation \\
+\midrule\noalign{}
+\endhead
+\endlastfoot
+NCSA Delta GPU & 11,500 GPU hours \\
+Amazon Web Services & \$6,300 \\
+Indiana Jetstream2 GPU & 86,016 SUs \\
+PSC Bridges-2 GPU & 1,500 GPU hours \\
+Purdue Anvil GPU & 1,500 GPU hours \\
+SDSC Expanse GPU & 1,500 GPU hours \\
+\bottomrule\noalign{}
+\end{longtable}
+
+\subsubsection{Access Point}\label{access-point}
+
+We used the OSPool access point
+\href{http://ap40.uw.osg-htc.org}{\texttt{ap40.uw.osg-htc.org}} for this
+initial round of experiments. In parallel, a machine dedicated for the
+PATh supplement was ordered and is currently being configured as of
+2025-07-30). There is no special configuration needed on this machine to
+enable utilization of the NAIRR resources beyond the pre-existing
+configuration to enable HTCondor Annex creation (described below).
+
+\subsubsection{Job description}\label{job-description}
+
+The METL software is well-documented and publicly available via github
+(\url{https://github.com/gitter-lab/metl/}). Input data and conda
+environments are similarly available within Zenodo
+(\url{https://zenodo.org/records/14916528}).\\
+In order to ease the distribution and deployment of the training
+software, a Docker container image was created
+(\url{https://github.com/CHTC/METL-Conductor/blob/main/Dockerfile})
+which contains the installed software. This image was then converted
+into an apptainer image. The apptainer and input data were then stored
+within the OSDF to ease the movement across the computing ecosystem.
+Total input sizes are \textasciitilde6GB for the image and
+$\sim$20GB for the data.\\
+Initial benchmarking of the training task was first tested locally on
+V100 machines, giving approximate resource needs. Additional
+benchmarking was done both in the CHTC and OSPool clusters to further
+test and understand the performance and resource needs of the training
+process.\\
+Finally, test jobs were run within the targeted NAIRR sites to comb out
+the differences between the sites and to dial in the resource
+requirements within the job definitions needed for each.
+
+\subsubsection{HTCondor Annex}\label{htcondor-annex}
+
+In order to provide single-AP access to the NAIRR sites, we used
+HTCondor's Annex feature. This tool submits a pilot job (or jobs) into a
+remote site based on the resource requests (and desired number of nodes)
+from the researcher. These jobs leverage the sites' local scheduling
+software and, upon starting, will create an HTCondor Execution Point
+(EP) that become available within the researcher's local cluster to run
+their job lists.\\
+Minor development was needed within the annex software, primarily to
+update the partition definitions and settings at the remote sites. The
+AWS annex required additional development to run an Amazon Machine Image
+(AMI) compatible with GPU usage.
+
+\subsubsection{DAG}\label{dag}
+
+Building upon a previous summer fellow's work, we create a DAG generator
+script, in order to:
+
+\begin{enumerate}
+\tightlist
+\item
+  Organize and automate the workload\\
+\item
+  Identify common patterns of scripted DAG generations\\
+\item
+  From 2, understand the shortcomings of DAGMan within the context of
+  throughput training tasks (ensemble training, hyperparameter sweeps)
+\end{enumerate}
+
+The DAG itself is an array of ``shish-kebab'' subgraphs, with each node
+defining a single job, itself defined as a single epoch of training.
+Evaluation of validation data was done within the training job, though
+the generation script supports separate side-nodes for evaluation.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{DAG}
+\label{fig:dag}
+\caption{A diagram showing the shape of the DAG implemented. The diagram
+shows 2 training runs, each of 5 epochs, for simplicity.}
+\end{figure}
+
+\textless monitoring\textgreater{}
+
+\subsubsection{}\label{section}
+
+\subsection{Status}\label{status}
+
+\textless n epochs, allocation usage, \ldots\textgreater{}
+
+\subsection{Results}\label{results}
+
+\textless evaluation of models\textgreater{}\\
+\textless what impact has it made?\textgreater{}
+
+\subsection{Next steps}\label{next-steps}
+
+\textless second experiment, updated model config, \ldots\textgreater{}
+
+\subsection{}\label{section-1}
+
+% Add some figures:
+% Epochs per resource
+% Time per resource
+% GPU breakdowns
+
+\end{document}
