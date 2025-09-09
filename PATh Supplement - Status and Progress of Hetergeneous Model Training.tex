@@ -1,10 +1,12 @@
 \documentclass{article}
 \usepackage{longtable}
 \usepackage{booktabs}
+\usepackage{todonotes}
 \usepackage{url}
 \usepackage[hidelinks,breaklinks=true]{hyperref}
 \usepackage{geometry}
 \usepackage{graphicx}
+\usepackage{float}
 \graphicspath{ {./images/} }
 \geometry{margin=1in}
 
@@ -104,6 +106,8 @@ process.\\
 Finally, test jobs were run within the targeted NAIRR sites to comb out
 the differences between the sites and to dial in the resource
 requirements within the job definitions needed for each.
+An initial training model (uuid 861e7e66) was trained, alternating between
+Expanse and Delta annexes.
 
 \subsubsection{HTCondor Annex}\label{htcondor-annex}
 
@@ -140,7 +144,7 @@ defining a single job, itself defined as a single epoch of training.
 Evaluation of validation data was done within the training job, though
 the generation script supports separate side-nodes for evaluation.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{DAG}
 \label{fig:dag}
@@ -148,28 +152,88 @@ the generation script supports separate side-nodes for evaluation.
 shows 2 training runs, each of 5 epochs, for simplicity.}
 \end{figure}
 
-\textless monitoring\textgreater{}
-
-\subsubsection{}\label{section}
-
-\subsection{Status}\label{status}
-
-\textless n epochs, allocation usage, \ldots\textgreater{}
+\todo{monitoring}
 
 \subsection{Results}\label{results}
+\subsubsection{Training process}\label{results_training}
 
-\textless evaluation of models\textgreater{}\\
-\textless what impact has it made?\textgreater{}
+In total,
+5,318.6 GPU hours were utilized
+Six different GPU models were utilized:
 
-\subsection{Next steps}\label{next-steps}
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+GPU Model & Epochs trained \\ \hline
 
-\textless second experiment, updated model config, \ldots\textgreater{}
+A100-PCIE-40GB & 6  \\ \hline
+A100-SXM4-40GB & 43 \\ \hline
+A100-SXM4-80GB & 73 \\ \hline
+A40 & 108 \\ \hline
+RTX A5000 & 354 \\ \hline
+V100-XSM2-32GB & 46 \\ \hline
+\end{tabular}
+\caption{GPU Utilization Breakdown}
+\label{tab:gpu_utilization}
+\end{table}
 
-\subsection{}\label{section-1}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{gpu_distribution_analysis.png}
+\label{fig:gpu_distribution}
+\caption{Distribution of epochs by GPU model.}
+\end{figure}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{resource_time_breakdown.png}
+\label{fig:resource_time_breakdown}
+\caption{Distribution of training time (left) and epochs trained (right) by targeted resource.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{gpu_runtime_by_resource_boxplot.png}
+\label{fig:gpu_runtime}
+\caption{Distribution of training time by GPU type and targeted resource.}
+\end{figure}
+
+
+
+
+
+
+
+\todo{}
 % Add some figures:
 % Epochs per resource
 % Time per resource
 % GPU breakdowns
+
+\subsubsection{Evaluation}\label{results_evaluation}
+Once training was completed, the model variants were evaluated using validation data. \todo{More info here.} The results are shown in Figure \ref{fig:key_metrics}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{plots/key_metrics_combined.png}
+\label{fig:key_metrics}
+\caption{Evaluation results of the 21 model variants. Pictured is comparisons of the Pearson total (top) and test loss (bottom) scores.}
+\end{figure}
+
+\todo{what impact has it made?}
+
+\subsection{Conclusions}\label{conclusions}
+\subsubsection{General considerations}
+\subsubsection{DAG generation and pattern repetition}
+\subsubsection{Annex readiness for distributed machine learning training}
+\subsubsection{Future work}
+\todo{second experiment, updated model config, ...}
+
+
+\subsection{Appendix}\label{section-1}
+\subsubsection{Woes and Findings}
+\todo{Training speed}
+
 
 \end{document}
