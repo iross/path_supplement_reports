@@ -225,6 +225,38 @@ Once training was completed, the model variants were evaluated using validation 
 
 \subsection{Conclusions}\label{conclusions}
 \subsubsection{General considerations}
+For a model of this size (2.5M parameters), the OSPool is an excellent source of
+GPUs available for training. The limited system and video memory needs are
+easily available within capacity donated to the OSPool, allowing for efficient
+training and optimization. It was not atypical for up to a dozen epochs to be training simultaneously,
+allowing for substantial overall throughput in the training process.
+
+The NAIRR sites also contributed significant computing resources, but they were
+not as heavily utilized as the OSPool due to the challenges in creating uniform
+and consistent pressure for jobs to consume existing annexes. The shape of the
+overall training process (where epochs moved across sites, often with long gaps
+between re-visiting a NAIRR resource, an annex retired before being re-utilized
+by additional jobs. This created a substantial bottleneck, as re-establishing
+the annex required manual intervention (due to the need for two-factor
+authentication).
+
+The overall behavior of the training process was difficult to characterize, and
+similar hardware across different sites resulted in significantly different
+training times. Attempts to troubleshoot this behavior was largely unsuccessful
+and was attributed to an imbalance between the CPU and GPU quanities requested
+within each job (e.g. creating a job with multiple GPUs at a NAIRR site, but
+insufficient CPU resources to feed data to the GPUs). Troubleshooting attempts
+included manually logging into the NAIRR sites and submitting the work directly
+to the SLURM clusters there (to eliminate potential HTCondor/Annex impact),
+moving data from the job directory to dedicated solid state space before
+training, and modifying batch sizes. Little impact was observed from these
+changes.
+
+An innate challenge to adaptation of existing training workflows into a new
+environment is the unfamilarity and ``black box'' nature of the software, which
+substantially complicates the ability to understand and investigate significant
+behavioral differences in heterogeneous environments.
+
 \subsubsection{DAG generation and pattern repetition}
 \subsubsection{Annex readiness for distributed machine learning training}
 \subsubsection{Future work}
