@@ -221,6 +221,14 @@ Once training was completed, the model variants were evaluated using validation 
 \caption{Evaluation results of the 21 model variants. Pictured is comparisons of the Pearson total (top) and test loss (bottom) scores.}
 \end{figure}
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.48\textwidth]{plots/scatterplot_test_loss.png}
+\includegraphics[width=0.48\textwidth]{plots/scatterplot_test pearson_total_score.png}
+\label{fig:key_metrics}
+\caption{Test loss (left) and Pearson total score (right) for the 21 model variants (by unique identifier of model)}
+\end{figure}
+
 \todo{what impact has it made?}
 
 \subsection{Conclusions}\label{conclusions}
@@ -258,7 +266,80 @@ substantially complicates the ability to understand and investigate significant
 behavioral differences in heterogeneous environments.
 
 \subsubsection{DAG generation and pattern repetition}
+A patter that is often repeated in machine learning training is the need to run
+multiple training jobs with differing configurations. Ensembles of models,
+including experiments such as this project, and hyperparameter tuning are common
+uses cases that fall into this category of high numbers of ``shish-kebab''
+shaped workflows. Between training runs, variables or parameters may be altered
+in order to optimize the model's performance, test model architecture behavior,
+or to generate a group of similar models for comparison.
+
+While creating the DAG generation script, we considered shortcomings and areas
+for improvement in the HTCondor software, especially in its Directed Acyclic
+Graph manager (DAGMan). While programtically creating a DAG in this fashion
+is not a challenging scripting task, it is largely left to individual researchers
+to re-implement similar patterns in order to capture desired behavior.
+
+DAGMan provides handles that are useful for this kind of work, such as being
+able to assign VARS at the NODE level, which allows for easily changing parameters
+between training runs. However, this must be done at the level of individual nodes, resulting
+in a verbose overall DAG definition that cannot easily be updated if needed. DAGMan also
+provides a way to define a subdag, which allows for repeated shapes within
+the overall workflow, but again lacks the flexibility in changing VARS within repetitions
+of the shape.
+
+Being able to define subdag- or region-define variables would simplify the
+overall structure of the DAG file, enabling more concise and maintainable DAG
+definitions. Finally, hyperparameter sweeps, a very common operation in ML
+training, involves systematic explorations of a phase space. DAGMan lacks the
+ability to easily program "sweeps" of values, such as letting a VAR run from
+0.01 to 0.1 in steps of 0.01. Should that feature be added, concise DAG definitions
+for complex ML training workflows could easily be created and utilized, instead of
+multiple ala carte solutions being created by research groups.
+
+A concise description of a DAG with SUBDAG repetition and sweeps could look something like:
+
+\begin{verbatim}
+train.subdag
+PARENT {run}-train_epoch0 CHILD {run}-train_epoch1
+PARENT {run}-train_epoch0 CHILD {run}-eval_epoch1
+PARENT {run}-train_epoch1 CHILD {run}-train_epoch2
+PARENT {run}-train_epoch1 CHILD {run}-eval_epoch2
+VARS {run}-train_epoch0 epoch=1 a={a} b={b}
+VARS {run}-train_epoch1 epoch=2 a={a} b={b}
+VARS {run}-train_epoch2 epoch=3 a={a} b={b}
+\end{verbatim}
+
+
+\begin{verbatim}
+workflow.dag
+GEN SUBDAG train_flow train.subdag a, b from
+  0.01 to 0.1 by 0.01
+  0.5 to 5 by 0.5
+PARENT init CHILD train_flow
+\end{verbatim}
+
+This defined a ``shish-kebab'' training subdag, with parent-child relationships
+defined between epochs (with sidecar evaluation nodes). a and b represent
+parameters that change between training runs but are consistent within each run.
+A GEN command will generate the overall workflow, letting the values of a and b
+run over their respective ranges. Finally, an initializing node (init, included
+but not defined) defines any initialization that needs to happen for the
+workflow as a whole and serves as a PARENT node to the training runs.
+
+
 \subsubsection{Annex readiness for distributed machine learning training}
+While HTCondor Annex provides a unified interface to HPC systems that provide
+NAIRR allocations, the particular challenge of intentionally shifting training
+between sites is somewhat at odds with the intended Annex goal of ``bursting''
+into a single HPC site to provide additional short-term computing resources.
+Instead, there was non-constant pressure of jobs targeting each site, resulting
+in constant annex retirement and the need for re-identification (often with
+two-factor authentication) at each site to re-establish the annex and continue
+training. This prevented full automation of the training process, as manual
+intervention was often required. Constant pressure (for example, from targeting
+only one NAIRR resource) could certainly solve this problem, with HTCondor
+providing the organization and management aspects of the training run.
 \subsubsection{Future work}
 \todo{second experiment, updated model config, ...}
 
