@@ -14,12 +14,13 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
+  \title{PATh Supplement - Status and Progress of Hetergeneous Model
+  Training}\label{path-supplement---status-and-progress-of-hetergeneous-model-training}
 \begin{document}
+\maketitle
 
-\section{PATh Supplement - Status and Progress of Hetergeneous Model
-Training}\label{path-supplement---status-and-progress-of-hetergeneous-model-training}
 
-\subsection{Objectives}\label{objectives}
+\section{Objectives}\label{objectives}
 
 
 As a supplement to the Partnership to Advanced Throughput Computing
@@ -52,9 +53,9 @@ variants will prove compatibility of the models, ensuring that the
 heterogeneity of resources did not impact the scientific power of the
 models.
 
-\subsection{Methodology}\label{methodology}
+\section{Methodology}\label{methodology}
 
-\subsubsection{NAIRR allocations}\label{nairr-allocations}
+\subsection{NAIRR allocations}\label{nairr-allocations}
 
 Through the NAIRR pilot program, we applied (NAIRR240335) for and
 received allocations at 6 sites:
@@ -74,7 +75,7 @@ SDSC Expanse GPU & 1,500 GPU hours \\
 \bottomrule\noalign{}
 \end{longtable}
 
-\subsubsection{Access Point}\label{access-point}
+\subsection{Access Point}\label{access-point}
 
 We used the OSPool access point
 \href{http://ap40.uw.osg-htc.org}{\texttt{ap40.uw.osg-htc.org}} for this
@@ -84,7 +85,7 @@ PATh supplement was ordered and is currently being configured as of
 enable utilization of the NAIRR resources beyond the pre-existing
 configuration to enable HTCondor Annex creation (described below).
 
-\subsubsection{Job description}\label{job-description}
+\subsection{Job description}\label{job-description}
 
 The METL software is well-documented and publicly available via github
 (\url{https://github.com/gitter-lab/metl/}). Input data and conda
@@ -109,7 +110,7 @@ requirements within the job definitions needed for each.
 An initial training model (uuid 861e7e66) was trained, alternating between
 Expanse and Delta annexes.
 
-\subsubsection{HTCondor Annex}\label{htcondor-annex}
+\subsection{HTCondor Annex}\label{htcondor-annex}
 
 In order to provide single-AP access to the NAIRR sites, we used
 HTCondor's Annex feature. This tool submits a pilot job (or jobs) into a
@@ -123,7 +124,7 @@ update the partition definitions and settings at the remote sites. The
 AWS annex required additional development to run an Amazon Machine Image
 (AMI) compatible with GPU usage.
 
-\subsubsection{DAG}\label{dag}
+\subsection{DAG}\label{dag}
 
 Building upon a previous summer fellow's work, we create a DAG generator
 script, in order to:
@@ -152,10 +153,30 @@ the generation script supports separate side-nodes for evaluation.
 shows 2 training runs, each of 5 epochs, for simplicity.}
 \end{figure}
 
-\todo{monitoring}
+\subsubsection{Monitoring}
+In order to monitor the training processes, a script was developed that reads
+HTCondor logs, DAGMan logs, and the DAG definition files
+to provide an overview of how training runs are progressing. By default, it shows
+the most recent (in-progress or idle) epoch within each training run, displaying
+the HTCondor job ID, the targeted resource, its current state (idle, transferring, running,
+held, complete), and the time spent in the current state. It also provides a global
+summarization of the total number of epochs trained across all runs, along with
+the number of epochs in each state. Finally, it provides a summary of the
+total time spent in computation across all training runs. See Figure \ref{fig:dagman_monitor}
+for a screenshot of the utility.
 
-\subsection{Results}\label{results}
-\subsubsection{Training process}\label{results_training}
+Additionally, the tool can provide per-training run summaries, showing where each
+epoch was completed and the amount of execution time taken.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{dagman_monitor.png}
+\caption{A screenshot showing the DAGMan monitor utility, providing an overview of the in-progress training runs.}
+\label{fig:dagman_monitor}
+\end{figure}
+
+\section{Results}\label{results}
+\subsection{Training process}\label{results_training}
 
 In total,
 5,318.6 GPU hours were utilized
@@ -199,40 +220,32 @@ V100-XSM2-32GB & 46 \\ \hline
 \caption{Distribution of training time by GPU type and targeted resource.}
 \end{figure}
 
+\subsection{Evaluation}\label{results_evaluation}
+Once training was completed, the model variants were evaluated using validation
+data. In the validation process, it was discovered that the model configuration
+utilized an arguments file intended for smaller, more targeted protein language models,
+while the larger ``global'' dataset was used as the training data. As a result, the
+models themselves do not provide scientifically informative predictions, and as a result are
+only compared to each other for consistency. Training loss and Pearson total scores are shown in Figure
+\ref{fig:key_metrics}.
 
-
-
-
-
-
-\todo{}
-% Add some figures:
-% Epochs per resource
-% Time per resource
-% GPU breakdowns
-
-\subsubsection{Evaluation}\label{results_evaluation}
-Once training was completed, the model variants were evaluated using validation data. \todo{More info here.} The results are shown in Figure \ref{fig:key_metrics}.
-
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{plots/key_metrics_combined.png}
-\label{fig:key_metrics}
 \caption{Evaluation results of the 21 model variants. Pictured is comparisons of the Pearson total (top) and test loss (bottom) scores.}
+\label{fig:key_metrics}
 \end{figure}
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.48\textwidth]{plots/scatterplot_test_loss.png}
 \includegraphics[width=0.48\textwidth]{plots/scatterplot_test pearson_total_score.png}
-\label{fig:key_metrics}
 \caption{Test loss (left) and Pearson total score (right) for the 21 model variants (by unique identifier of model)}
+\label{fig:key_metrics_scatterplot}
 \end{figure}
 
-\todo{what impact has it made?}
-
-\subsection{Conclusions}\label{conclusions}
-\subsubsection{General considerations}
+\section{Conclusions}\label{conclusions}
+\subsection{General considerations}
 For a model of this size (2.5M parameters), the OSPool is an excellent source of
 GPUs available for training. The limited system and video memory needs are
 easily available within capacity donated to the OSPool, allowing for efficient
@@ -265,7 +278,7 @@ environment is the unfamilarity and ``black box'' nature of the software, which
 substantially complicates the ability to understand and investigate significant
 behavioral differences in heterogeneous environments.
 
-\subsubsection{DAG generation and pattern repetition}
+\subsection{DAG generation and pattern repetition}
 A patter that is often repeated in machine learning training is the need to run
 multiple training jobs with differing configurations. Ensembles of models,
 including experiments such as this project, and hyperparameter tuning are common
@@ -275,8 +288,7 @@ in order to optimize the model's performance, test model architecture behavior,
 or to generate a group of similar models for comparison.
 
 While creating the DAG generation script, we considered shortcomings and areas
-for improvement in the HTCondor software, especially in its Directed Acyclic
-Graph manager (DAGMan). While programtically creating a DAG in this fashion
+for improvement in the HTCondor software, especially in its Directed Acyclic Graph manager (DAGMan). While programtically creating a DAG in this fashion
 is not a challenging scripting task, it is largely left to individual researchers
 to re-implement similar patterns in order to capture desired behavior.
 
@@ -328,7 +340,7 @@ but not defined) defines any initialization that needs to happen for the
 workflow as a whole and serves as a PARENT node to the training runs.
 
 
-\subsubsection{Annex readiness for distributed machine learning training}
+\subsection{Annex readiness for distributed machine learning training}
 While HTCondor Annex provides a unified interface to HPC systems that provide
 NAIRR allocations, the particular challenge of intentionally shifting training
 between sites is somewhat at odds with the intended Annex goal of ``bursting''
@@ -340,13 +352,33 @@ training. This prevented full automation of the training process, as manual
 intervention was often required. Constant pressure (for example, from targeting
 only one NAIRR resource) could certainly solve this problem, with HTCondor
 providing the organization and management aspects of the training run.
-\subsubsection{Future work}
-\todo{second experiment, updated model config, ...}
+\subsection{Future work}
+During the course of this experiment, it was discovered that the model
+configuration being utilized was inconsistent with the training dataset,
+resulting in a model that was not scientifically useful and not directly
+comparable to the existing published versions. A second round of training is
+underway, utilizing a larger model architecture more suited to the ``global''
+scope of the training data and consistent with the published models. The
+resources, utilities, and strategies implemented in the initial experiment are
+being heavily re-used for this second experiment. As of 2025-09-15, the second
+round of training is underway, with 92 completed epochs of trianing across 20
+different runs.
 
+\section{Appendix}\label{section-1}
+\subsection{Woes and Findings}
+\subsubsection{Failure to automate annex creation}
+A significant bottleneck in the training process was the challenge in automating
+the annex creation process. While the DAG seamlessly coordinated scheduling and
+running epochs within the OSPool, Annex creation as it is currently implemented
+requires ssh connections to the external resource in order to install,
+configure, and connect the EP resource to the AP. Because jobs requiring the
+annex weren't consistently next in the training runs, the annex would regularly
+expire before needing to be used for further training. The next time the site
+was required, the annex needed to be re-established, requiring manual
+intervention to ssh into the external resource and re-establish the annex.
 
-\subsection{Appendix}\label{section-1}
-\subsubsection{Woes and Findings}
-\todo{Training speed}
-
+Although many of these sites are trusted and well-implented within the OSPool
+and adjacent computing ecosystems, the Annex was required in order to tie usage
+to the NAIRR-provided accounts.
 
 \end{document}
