@@ -66,7 +66,7 @@ possible.}
 
 To accomplish these goals, we will use the existing Gitter lab's published
 Mutational Effect Transfer Learning (METL) protein language
-model\cite{gelmanBiophysicsbasedProteinLanguage2025} , using existing data and
+model\cite{gelmanBiophysicsbasedProteinLanguage2025}, using existing data and
 software to train a modest number of model variants (20-30) from a single AP,
 intentionally moving the training processes between available resources at
 training epoch boundaries. Comparison of these variants will prove compatibility
@@ -292,7 +292,7 @@ moving data from the job directory to dedicated solid state space before
 training, and modifying batch sizes.
 
 An innate challenge to adaptation of existing training workflows into a new
-environment is the unfamilarity and ``black box'' nature of the software, which
+environment is the unfamiliarity and ``black box'' nature of the software, which
 substantially complicates the ability to understand and investigate significant
 behavioral differences in heterogeneous environments.
 
@@ -306,8 +306,9 @@ in order to optimize the model's performance, test model architecture behavior,
 or to generate a group of similar models for comparison.
 
 While creating the DAG generation script, we considered shortcomings and areas
-for improvement in the HTCondor software, especially in its Directed Acyclic Graph manager (DAGMan). While programtically creating a DAG in this fashion
-is not a challenging scripting task, it is largely left to individual researchers
+for improvement in the HTCondor software, especially in its Directed Acyclic
+Graph manager (DAGMan). While programmatically creating a DAG in this fashion is
+not a challenging scripting task, it is largely left to individual researchers
 to re-implement similar patterns in order to capture desired behavior.
 
 DAGMan provides handles that are useful for this kind of work, such as being
@@ -368,7 +369,7 @@ expire before needing to be used for further training. The next time the site
 was required, the annex needed to be re-established, requiring manual
 intervention to ssh into the external resource and re-establish the annex.
 
-Although many of these sites are trusted and well-implented within the OSPool
+Although many of these sites are trusted and well-implemented within the OSPool
 and adjacent computing ecosystems, the Annex was required in order to tie usage
 to the NAIRR-provided accounts.
 
