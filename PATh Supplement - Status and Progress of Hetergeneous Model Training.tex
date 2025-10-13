@@ -357,6 +357,20 @@ run over their respective ranges. Finally, an initializing node (init, included
 but not defined) defines any initialization that needs to happen for the
 workflow as a whole and serves as a PARENT node to the training runs.
 
+\subsection{Automation of annex creation}
+A significant bottleneck in the training process was the challenge in automating
+the annex creation process. While the DAG seamlessly coordinated scheduling and
+running epochs within the OSPool, Annex creation as it is currently implemented
+requires ssh connections to the external resource in order to install,
+configure, and connect the EP resource to the AP. Because jobs requiring the
+annex weren't consistently next in the training runs, the annex would regularly
+expire before needing to be used for further training. The next time the site
+was required, the annex needed to be re-established, requiring manual
+intervention to ssh into the external resource and re-establish the annex.
+
+Although many of these sites are trusted and well-implented within the OSPool
+and adjacent computing ecosystems, the Annex was required in order to tie usage
+to the NAIRR-provided accounts.
 
 \subsection{Annex readiness for distributed machine learning training}
 While HTCondor Annex provides a unified interface to HPC systems that provide
@@ -378,27 +392,9 @@ comparable to the existing published versions. A second round of training is
 underway, utilizing a larger model architecture more suited to the ``global''
 scope of the training data and consistent with the published models. The
 resources, utilities, and strategies implemented in the initial experiment are
-being heavily re-used for this second experiment. As of 2025-09-15, the second
-round of training is underway, with 92 completed epochs of trianing across 20
+being heavily re-used for this second experiment. As of 2025-10-13, the second
+round of training is underway, with 214 completed epochs of training across 20
 different runs.
-
-\section{Appendix}\label{section-1}
-\subsection{Woes and Findings}
-\subsubsection{Failure to automate annex creation}
-A significant bottleneck in the training process was the challenge in automating
-the annex creation process. While the DAG seamlessly coordinated scheduling and
-running epochs within the OSPool, Annex creation as it is currently implemented
-requires ssh connections to the external resource in order to install,
-configure, and connect the EP resource to the AP. Because jobs requiring the
-annex weren't consistently next in the training runs, the annex would regularly
-expire before needing to be used for further training. The next time the site
-was required, the annex needed to be re-established, requiring manual
-intervention to ssh into the external resource and re-establish the annex.
-
-Although many of these sites are trusted and well-implented within the OSPool
-and adjacent computing ecosystems, the Annex was required in order to tie usage
-to the NAIRR-provided accounts.
-
 \section{Acknowledgements}
 This research is supported by the National Artificial Intelligence Research
 Resource (NAIRR) Pilot.
