@@ -11,7 +11,7 @@
 \addbibresource{ref.bib}
 \graphicspath{ {./images/} }
 \geometry{margin=1in}
-
+test
 % Define tightlist for pandoc compatibility
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
@@ -26,8 +26,8 @@ This project investigates the feasibility and experience of training machine
 learning model ensembles across heterogeneous resources from a single HTCondor
 access point (AP). These resources are spatially separated and exist across
 multiple computing ecosystems, using both the OSPool and resources granted
-through the NAIRR Pilot Program. We trained 21 variants of a METL
-protein language model, consuming over 5,300 GPU hours on 6 different GPU
+through the NAIRR Pilot Program. We trained \todo{update numbers}21 variants of a METL
+protein language model, consuming over \todo{update numbers}5,300 GPU hours on 6 different GPU
 models. Our results show that model training is robust in a heterogeneous
 environment, and that the PATh services, backed by the HTCondor and Pelican
 software, provide suitable tools for submitting and managing the training
@@ -40,6 +40,8 @@ configurations provided by AWS restrict the ability to create the necessary
 resources for integration into the PATh ecosystem. Overall, this work shows that
 the PATh ecosystem is technically viable solution for training ensembles of
 models requiring that are easily checkpointable and fit within a single GPU.
+
+\todo{Summarize global protein model experiment as well}
 
 \section{Objectives}\label{objectives}
 
@@ -95,13 +97,15 @@ SDSC Expanse GPU & 1,500 GPU hours \\
 \bottomrule\noalign{}
 \end{longtable}
 
+\todo{What about the refresh?}
+
 \subsection{Access Point}\label{access-point}
 
 We used the OSPool access point
-\href{http://ap40.uw.osg-htc.org}{\texttt{ap40.uw.osg-htc.org}} for this
-initial round of experiments. In parallel, a machine dedicated for the
-PATh supplement was ordered and is currently being configured as of
-2025-10-13). There is no special configuration needed on this machine to
+\href{http://ap40.uw.osg-htc.org}{\texttt{ap40.uw.osg-htc.org}} for all
+training jobs targeting either OSPool or NAIRR resources. The second round of
+experiments included baseline runs run within CHTC, \texttt{ap2002}.
+There is no special configuration needed on the shared access points to
 enable utilization of the NAIRR resources beyond the pre-existing
 configuration to enable HTCondor Annex creation.
 
@@ -123,8 +127,7 @@ both in the CHTC and OSPool clusters to further test and understand the
 performance and resource needs of the training process.\\ Finally, test jobs
 were run within the targeted NAIRR sites to comb out the differences between the
 sites and to dial in the resource requirements within the job definitions needed
-for each. An initial training model (uuid 861e7e66) was trained, alternating
-between Expanse and Delta annexes.
+for each.
 
 \subsection{HTCondor Annex}\label{htcondor-annex}
 
@@ -145,7 +148,7 @@ create and use the necessary resources within AWS.
 \subsection{DAG}\label{dag}
 
 Building upon a previous summer fellow's work, we create a DAG generator
-script, in order to:
+script, in order to: \todo{update since it's more like a library and maybe a bit more usable now.}
 
 \begin{enumerate}
 \tightlist
@@ -165,7 +168,7 @@ the generation script supports separate side-nodes for evaluation.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{DAG}
+\includegraphics[width=0.8\textwidth]{./images/DAG}
 \label{fig:dag}
 \caption{A diagram showing the shape of the DAG implemented. The diagram
 shows 2 training runs, each of 5 epochs, for simplicity.}
@@ -193,13 +196,24 @@ epoch was completed and the amount of execution time taken.
 \label{fig:dagman_monitor}
 \end{figure}
 
-\section{Results}\label{results}
-\subsection{Training process}\label{results_training}
+% ============================================================
+\section{Experiment 1: Initial METL Model Training}\label{experiment1}
+% ============================================================
+
+\subsection{Model configuration}\label{model-config-exp1}
+
+An initial training model (uuid 861e7e66) was trained, alternating between
+Expanse and Delta annexes. \todo{Describe the model architecture and configuration used in Experiment 1 (the misconfigured small-model arguments with global dataset)}
+
+\todo{Update Numbers}
+\subsection{Results}\label{results}
+\subsubsection{Training process}\label{results_training}
 
 In total,
 5,318.6 GPU hours were utilized
 Six different GPU models were utilized:
 
+\todo{update}
 \begin{table}[h]
 \centering
 \begin{tabular}{|c|c|}
@@ -217,6 +231,7 @@ V100-XSM2-32GB & 46 \\ \hline
 \label{tab:gpu_utilization}
 \end{table}
 
+\todo{update}
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{gpu_distribution_analysis.png}
@@ -224,6 +239,7 @@ V100-XSM2-32GB & 46 \\ \hline
 \caption{Distribution of epochs by GPU model.}
 \end{figure}
 
+\todo{update}
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{resource_time_breakdown.png}
@@ -231,6 +247,7 @@ V100-XSM2-32GB & 46 \\ \hline
 \caption{Distribution of training time (left) and epochs trained (right) by targeted resource.}
 \end{figure}
 
+\todo{update}
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{gpu_runtime_by_resource_boxplot.png}
@@ -238,7 +255,8 @@ V100-XSM2-32GB & 46 \\ \hline
 \caption{Distribution of training time by GPU type and targeted resource.}
 \end{figure}
 
-\subsection{Evaluation}\label{results_evaluation}
+\subsubsection{Evaluation}\label{results_evaluation}
+\todo{Lots of updates in here...this was all the old model.  }
 Once training was completed, the model variants were evaluated using validation
 data. In the validation process, it was discovered that the model configuration
 utilized an arguments file intended for smaller, more targeted protein language models,
@@ -262,7 +280,34 @@ only compared to each other for consistency. Training loss and Pearson total sco
 \label{fig:key_metrics_scatterplot}
 \end{figure}
 
+% ============================================================
+\section{Experiment 2: Global Protein Model Training}\label{experiment2}
+% ============================================================
+
+During the course of the first experiment, it was discovered that the model
+configuration being utilized was inconsistent with the training dataset,
+resulting in a model that was not scientifically useful and not directly
+comparable to the existing published versions. A second round of training was
+conducted utilizing a larger model architecture more suited to the ``global''
+scope of the training data and consistent with the published models. The
+resources, utilities, and strategies implemented in the initial experiment were
+heavily re-used for this second experiment.
+
+\subsection{Model configuration}\label{model-config-exp2}
+\todo{Describe the global model architecture and configuration used in Experiment 2}
+
+\subsection{Results}\label{results-global}
+
+\subsubsection{Training process}\label{results-training-global}
+\todo{Describe training process results for the global model experiment}
+
+\subsubsection{Evaluation}\label{results-evaluation-global}
+\todo{Describe evaluation results for the global model experiment}
+
+% ============================================================
 \section{Conclusions}\label{conclusions}
+% ============================================================
+
 \subsection{General considerations}
 For a model of this size (2.5M parameters), the OSPool is an excellent source of
 GPUs available for training. The limited system and video memory needs are
@@ -295,6 +340,8 @@ An innate challenge to adaptation of existing training workflows into a new
 environment is the unfamiliarity and ``black box'' nature of the software, which
 substantially complicates the ability to understand and investigate significant
 behavioral differences in heterogeneous environments.
+
+\todo{Summarize conclusions from the global model experiment}
 
 \subsection{DAG generation and pattern repetition}
 A patter that is often repeated in machine learning training is the need to run
@@ -374,6 +421,7 @@ and adjacent computing ecosystems, the Annex was required in order to tie usage
 to the NAIRR-provided accounts.
 
 \subsection{Annex readiness for distributed machine learning training}
+\todo{Update with ongoing annex work summary}
 While HTCondor Annex provides a unified interface to HPC systems that provide
 NAIRR allocations, the particular challenge of intentionally shifting training
 between sites is somewhat at odds with the intended Annex goal of ``bursting''
@@ -385,17 +433,7 @@ training. This prevented full automation of the training process, as manual
 intervention was often required. Constant pressure (for example, from targeting
 only one NAIRR resource) could certainly solve this problem, with HTCondor
 providing the organization and management aspects of the training run.
-\subsection{Future work}
-During the course of this experiment, it was discovered that the model
-configuration being utilized was inconsistent with the training dataset,
-resulting in a model that was not scientifically useful and not directly
-comparable to the existing published versions. A second round of training is
-underway, utilizing a larger model architecture more suited to the ``global''
-scope of the training data and consistent with the published models. The
-resources, utilities, and strategies implemented in the initial experiment are
-being heavily re-used for this second experiment. As of 2025-10-13, the second
-round of training is underway, with 214 completed epochs of training across 20
-different runs.
+
 \section{Acknowledgements}
 This research is supported by the National Artificial Intelligence Research
 Resource (NAIRR) Pilot.
